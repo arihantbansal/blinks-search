@@ -11,7 +11,6 @@ import {
 import { useActionSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
 import { clusterApiUrl } from "@solana/web3.js";
 import { ActionsRegistryData } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import BlinkSkeleton from "@/components/BlinkSkeleton";
 
 const BATCH_SIZE = 12; // Changed to 12 for better alignment in 3 columns
@@ -34,21 +33,6 @@ export default function App() {
 	);
 }
 
-const Navbar = () => {
-	return (
-		<nav className="bg-gray-50 py-4">
-			<div className="container mx-auto px-4 flex justify-between items-center">
-				<Button variant="ghost" className="text-gray-950">
-					Menu
-				</Button>
-				<Button variant="ghost" className="text-gray-950">
-					Profile
-				</Button>
-			</div>
-		</nav>
-	);
-};
-
 const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -66,7 +50,10 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 				throw new Error(`Failed to fetch registry data: ${res.statusText}`);
 			}
 			const data = await res.json();
-			return data.results as ActionsRegistryData[];
+			const dataResults = data.results as ActionsRegistryData[];
+
+			// Filter out actions that are not registered
+			return dataResults.filter(res => res.tags.includes("registered"));
 		} catch (err) {
 			const errorMessage =
 				err instanceof Error ? err.message : "An unknown error occurred";
@@ -150,7 +137,7 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[minmax(100px,auto)] grid-flow-dense">
 			{actions.map((action) => (
 				<div key={action.url} className="rounded-lg p-4">
 					<Blink action={action} websiteText={new URL(action.url).hostname} />
