@@ -13,6 +13,14 @@ import { clusterApiUrl } from "@solana/web3.js";
 import { ActionsRegistryData } from "@/lib/utils";
 import BlinkSkeleton from "@/components/BlinkSkeleton";
 import MasonryGrid from "@/components/MasonryGrid";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 const BATCH_SIZE = 12;
 
@@ -43,8 +51,11 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 	const [actions, setActions] = useState<Action[]>([]);
 	const [page, setPage] = useState(0);
 	const loader = useRef(null);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [sortOption, setSortOption] = useState("newest");
+	const [hasMore, setHasMore] = useState(true);
 
-	const fetchRegistryData = async () => {
+	const fetchRegistryData = useCallback(async () => {
 		try {
 			const res = await fetch("https://registry.dial.to/v1/list");
 			if (!res.ok) {
@@ -52,7 +63,11 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 			}
 			const data = await res.json();
 			const dataResults = data.results as ActionsRegistryData[];
-			return dataResults.filter((res) => res.tags.includes("registered"));
+			const filteredResults = dataResults.filter((res) =>
+				res.tags.includes("registered")
+			);
+			console.log("Fetched registry data:", filteredResults.length);
+			return filteredResults;
 		} catch (err) {
 			const errorMessage =
 				err instanceof Error ? err.message : "An unknown error occurred";
@@ -60,15 +75,66 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 			setError(errorMessage);
 			return [];
 		}
-	};
+	}, []);
+
+	const sortActions = useCallback((actions: Action[], option: string) => {
+		switch (option) {
+			case "newest":
+				return actions.sort((a, b) => {
+					const aEntry = actionsRegistryData.find(
+						(entry) => entry.actionUrl === a.url
+					);
+					const bEntry = actionsRegistryData.find(
+						(entry) => entry.actionUrl === b.url
+					);
+					return (
+						Number(bEntry?.createdAt ?? 0) - Number(aEntry?.createdAt ?? 0)
+					);
+				});
+			case "oldest":
+				return actions.sort((a, b) => {
+					const aEntry = actionsRegistryData.find(
+						(entry) => entry.actionUrl === a.url
+					);
+					const bEntry = actionsRegistryData.find(
+						(entry) => entry.actionUrl === b.url
+					);
+					return (
+						Number(aEntry?.createdAt ?? 0) - Number(bEntry?.createdAt ?? 0)
+					);
+				});
+			case "nameAsc":
+				return actions.sort((a, b) => a.title.localeCompare(b.title));
+			case "nameDesc":
+				return actions.sort((a, b) => b.title.localeCompare(a.title));
+			default:
+				return actions;
+		}
+	}, []);
 
 	const fetchActions = useCallback(async () => {
-		if (isLoading || actionsRegistryData.length === 0) return;
+		if (isLoading || actionsRegistryData.length === 0 || !hasMore) {
+			console.log("Skipping fetchActions:", {
+				isLoading,
+				dataLength: actionsRegistryData.length,
+				hasMore,
+			});
+			return;
+		}
 
 		setIsLoading(true);
 		const start = page * BATCH_SIZE;
 		const end = start + BATCH_SIZE;
 		const batch = actionsRegistryData.slice(start, end);
+
+		console.log("Fetching actions:", { start, end, batchSize: batch.length });
+
+		if (batch.length === 0) {
+			setHasMore(false);
+			setIsLoading(false);
+			console.log("No more actions to fetch");
+			return;
+		}
 
 		const actionPromises = batch.map((actionRegistryEntry) =>
 			Action.fetch(actionRegistryEntry.actionUrl).catch((error) => {
@@ -83,10 +149,30 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 		const fetchedActions = await Promise.all(actionPromises);
 		const validActions = fetchedActions.filter(Boolean) as Action[];
 
-		setActions((prevActions) => [...prevActions, ...validActions]);
+		console.log("Fetched valid actions:", validActions.length);
+
+		const filteredActions = validActions.filter((action) =>
+			action.title.toLowerCase().includes(searchQuery.toLowerCase())
+		);
+
+		const sortedActions = sortActions(filteredActions, sortOption);
+
+		setActions((prevActions) => {
+			const newActions = [...prevActions, ...sortedActions];
+			console.log("Total actions after update:", newActions.length);
+			return newActions;
+		});
 		setPage((prevPage) => prevPage + 1);
 		setIsLoading(false);
-	}, [page, actionsRegistryData, isLoading]);
+	}, [
+		page,
+		actionsRegistryData,
+		isLoading,
+		searchQuery,
+		sortOption,
+		hasMore,
+		sortActions,
+	]);
 
 	useEffect(() => {
 		const loadInitialData = async () => {
@@ -96,19 +182,23 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 		};
 
 		loadInitialData();
-	}, []);
+	}, [fetchRegistryData]);
 
 	useEffect(() => {
-		if (actionsRegistryData.length > 0) {
+		if (actionsRegistryData.length > 0 && !isLoading) {
+			setActions([]);
+			setPage(0);
+			setHasMore(true);
 			fetchActions();
 		}
-	}, [actionsRegistryData, fetchActions]);
+	}, [actionsRegistryData, searchQuery, sortOption]);
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
 				const first = entries[0];
-				if (first.isIntersecting && !isLoading) {
+				if (first.isIntersecting && !isLoading && hasMore) {
+					console.log("Intersection observer triggered fetchActions");
 					fetchActions();
 				}
 			},
@@ -125,11 +215,25 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 				observer.unobserve(currentLoader);
 			}
 		};
-	}, [isLoading, fetchActions]);
+	}, [isLoading, fetchActions, hasMore]);
 
 	useEffect(() => {
 		actions.forEach((action) => action.setAdapter(adapter));
 	}, [actions, adapter]);
+
+	const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchQuery(e.target.value);
+		setActions([]);
+		setPage(0);
+		setHasMore(true);
+	}, []);
+
+	const handleSort = useCallback((value: string) => {
+		setSortOption(value);
+		setActions([]);
+		setPage(0);
+		setHasMore(true);
+	}, []);
 
 	if (error) {
 		return <div className="text-center">Error: {error}</div>;
@@ -137,6 +241,26 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 
 	return (
 		<div className="relative">
+			<div className="mb-4 flex flex-col sm:flex-row gap-4 sm:items-center">
+				<Input
+					type="search"
+					placeholder="Search blinks..."
+					value={searchQuery}
+					onChange={handleSearch}
+					className="flex-grow"
+				/>
+				<Select value={sortOption} onValueChange={handleSort}>
+					<SelectTrigger className="w-full sm:w-[180px]">
+						<SelectValue placeholder="Sort by" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="newest">Newest</SelectItem>
+						<SelectItem value="oldest">Oldest</SelectItem>
+						<SelectItem value="nameAsc">Name (A-Z)</SelectItem>
+						<SelectItem value="nameDesc">Name (Z-A)</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
 			<MasonryGrid>
 				{actions.map((action) => (
 					<div
@@ -154,7 +278,7 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 						</div>
 					))}
 			</MasonryGrid>
-			<div ref={loader} className="h-10 w-full" />
+			{hasMore && <div ref={loader} className="h-10 w-full" />}
 		</div>
 	);
 };
