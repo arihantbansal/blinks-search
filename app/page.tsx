@@ -25,12 +25,10 @@ export default function App() {
 	return (
 		<div className="min-h-screen bg-gray-200 text-gray-950">
 			<main className="container mx-auto px-4 py-8">
-				<h1 className="text-3xl font-bold mb-8 text-center">🔍 search blinks</h1>
-				{isRegistryLoaded ? (
-					<InfiniteScrollActions adapter={adapter} />
-				) : (
-					<div className="text-center">Loading actions registry...</div>
-				)}
+				<h1 className="text-3xl font-bold mb-8 text-center">
+					🔍 search blinks
+				</h1>
+				<InfiniteScrollActions adapter={adapter} />
 			</main>
 		</div>
 	);
@@ -50,7 +48,6 @@ const Navbar = () => {
 		</nav>
 	);
 };
-
 
 const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 	const [isLoading, setIsLoading] = useState(true);
