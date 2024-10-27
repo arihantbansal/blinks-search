@@ -1,7 +1,7 @@
 "use client";
 
 import "@dialectlabs/blinks/index.css";
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
 	Action,
 	Blink,
@@ -12,8 +12,9 @@ import { useActionSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
 import { clusterApiUrl } from "@solana/web3.js";
 import { ActionsRegistryData } from "@/lib/utils";
 import BlinkSkeleton from "@/components/BlinkSkeleton";
+import MasonryGrid from "@/components/MasonryGrid";
 
-const BATCH_SIZE = 12; // Changed to 12 for better alignment in 3 columns
+const BATCH_SIZE = 12;
 
 export default function App() {
 	const { isRegistryLoaded } = useActionsRegistryInterval();
@@ -51,9 +52,7 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 			}
 			const data = await res.json();
 			const dataResults = data.results as ActionsRegistryData[];
-
-			// Filter out actions that are not registered
-			return dataResults.filter(res => res.tags.includes("registered"));
+			return dataResults.filter((res) => res.tags.includes("registered"));
 		} catch (err) {
 			const errorMessage =
 				err instanceof Error ? err.message : "An unknown error occurred";
@@ -137,17 +136,25 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 	}
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[minmax(100px,auto)] grid-flow-dense">
-			{actions.map((action) => (
-				<div key={action.url} className="rounded-lg p-4">
-					<Blink action={action} websiteText={new URL(action.url).hostname} />
-				</div>
-			))}
-			{isLoading &&
-				Array.from({ length: BATCH_SIZE }).map((_, index) => (
-					<BlinkSkeleton key={`skeleton-${index}`} />
+		<div className="relative">
+			<MasonryGrid>
+				{actions.map((action) => (
+					<div
+						key={action.url}
+						className="bg-white rounded-lg shadow-md overflow-hidden">
+						<Blink action={action} websiteText={new URL(action.url).hostname} />
+					</div>
 				))}
-			<div ref={loader} className="col-span-full h-10" />
+				{isLoading &&
+					Array.from({ length: BATCH_SIZE }).map((_, index) => (
+						<div
+							key={`skeleton-${index}`}
+							className="bg-white rounded-lg shadow-md overflow-hidden">
+							<BlinkSkeleton />
+						</div>
+					))}
+			</MasonryGrid>
+			<div ref={loader} className="h-10 w-full" />
 		</div>
 	);
 };
