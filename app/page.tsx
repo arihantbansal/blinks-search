@@ -24,9 +24,8 @@ export default function App() {
 
 	return (
 		<div className="min-h-screen bg-gray-200 text-gray-950">
-			<Navbar />
 			<main className="container mx-auto px-4 py-8">
-				<h1 className="text-3xl font-bold mb-8 text-center">Search Blinks</h1>
+				<h1 className="text-3xl font-bold mb-8 text-center">🔍 search blinks</h1>
 				{isRegistryLoaded ? (
 					<InfiniteScrollActions adapter={adapter} />
 				) : (
@@ -39,7 +38,7 @@ export default function App() {
 
 const Navbar = () => {
 	return (
-		<nav className="bg-gray-800 py-4">
+		<nav className="bg-gray-50 py-4">
 			<div className="container mx-auto px-4 flex justify-between items-center">
 				<Button variant="ghost" className="text-gray-950">
 					Menu
@@ -156,7 +155,7 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 			{actions.map((action) => (
-				<div key={action.url} className="bg-gray-800 rounded-lg p-4">
+				<div key={action.url} className="rounded-lg p-4">
 					<Blink action={action} websiteText={new URL(action.url).hostname} />
 				</div>
 			))}
