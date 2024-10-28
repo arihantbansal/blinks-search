@@ -19,6 +19,7 @@ import BlinkSkeleton from "@/components/BlinkSkeleton";
 interface ActionWithMetadata {
 	action: Action;
 	createdAt: Date;
+	description: string;
 }
 
 export default function BlinksMapper() {
@@ -41,7 +42,11 @@ export default function BlinksMapper() {
 					try {
 						const action = await Action.fetch(blink.actionUrl);
 						console.log("Fetched action:", action);
-						return { action, createdAt: new Date(blink.createdAt) };
+						return {
+							action,
+							createdAt: new Date(blink.createdAt),
+							description: blink.description,
+						};
 					} catch (error) {
 						console.error(
 							`Failed to fetch action for ${blink.actionUrl}:`,
@@ -91,8 +96,10 @@ export default function BlinksMapper() {
 	}, []);
 
 	useEffect(() => {
-		const filtered = allActions.filter((item) =>
-			item.action.title.toLowerCase().includes(searchQuery.toLowerCase())
+		const filtered = allActions.filter(
+			(item) =>
+				item.action.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				item.description.toLowerCase().includes(searchQuery.toLowerCase())
 		);
 
 		const sorted = [...filtered].sort((a, b) => {
@@ -154,12 +161,12 @@ export default function BlinksMapper() {
 					</div>
 				) : (
 					filteredActions.map(({ action }) => (
-						<>
+						<React.Fragment key={action.url}>
 							<Blink
 								action={action}
 								websiteText={new URL(action.url).hostname}
 							/>
-						</>
+						</React.Fragment>
 					))
 				)}
 			</div>
