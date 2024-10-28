@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Action, Blink } from "@dialectlabs/blinks";
+import { Action, Blink, useActionsRegistryInterval } from "@dialectlabs/blinks";
 import blinksData from "@/blinks-data.json";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,6 +23,7 @@ interface ActionWithMetadata {
 }
 
 export default function BlinksMapper() {
+	const { isRegistryLoaded } = useActionsRegistryInterval();
 	const { adapter } = useActionSolanaWalletAdapter(
 		process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("mainnet-beta")
 	);
@@ -134,7 +135,8 @@ export default function BlinksMapper() {
 				<Select
 					value={sortOption}
 					onValueChange={handleSort}
-					disabled={isLoading}>
+					disabled={isLoading}
+				>
 					<SelectTrigger className="w-full sm:w-[180px]">
 						<SelectValue placeholder="Sort by" />
 					</SelectTrigger>

@@ -6,8 +6,6 @@ import { WalletButton } from "@/components/solana-provider";
 import "@dialectlabs/blinks/index.css";
 
 export default function Home() {
-	
-
 	return (
 		<div className="min-h-screen bg-gray-100">
 			<header className="bg-white shadow">
