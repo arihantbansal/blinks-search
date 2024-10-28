@@ -11,6 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import "@dialectlabs/blinks/index.css";
 
 interface BlinksMapperProps {
 	adapter: ActionAdapter;
