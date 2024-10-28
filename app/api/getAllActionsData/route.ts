@@ -19,13 +19,18 @@ export async function GET(request: NextRequest) {
 	for (let i = 0; i < registeredActions.length; i += batchSize) {
 		const batch = registeredActions.slice(i, i + batchSize);
 		const batchPromises = batch.map((actionRegistryEntry) =>
-			fetchAction(actionRegistryEntry.actionUrl).catch((error) => {
-				console.error(
-					`Failed to fetch action from ${actionRegistryEntry.actionUrl}:`,
-					error
-				);
-				return null;
-			})
+			fetchAction(actionRegistryEntry.actionUrl)
+				.then((actionData) => ({
+					...actionRegistryEntry,
+					...actionData
+				}))
+				.catch((error) => {
+					console.error(
+						`Failed to fetch action from ${actionRegistryEntry.actionUrl}:`,
+						error
+					);
+					return null;
+				})
 		);
 		
 		const batchResults = await Promise.all(batchPromises);
