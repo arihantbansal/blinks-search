@@ -872,19 +872,6 @@
 		"metadata": {}
 	},
 	{
-		"actionUrl": "https://api.hel.io/v1/blink/66b3a41b83e4d75d1c52966e",
-		"blinkUrl": null,
-		"websiteUrl": null,
-		"createdAt": "2024-10-15T18:08:28.000Z",
-		"tags": ["registered"],
-		"title": "SUPERBASEDD Pre-sale \"The First Issue\"",
-		"description": "",
-		"icon": "https://helioimages113109-prod.s3.eu-west-1.amazonaws.com/attachments/CF90TYs0BbeE55MluCA3krRvmJ6eQlv1pFVxt3Nw.png?AWSAccessKeyId=AKIAZIDE2VZRR4E6NXMZ&Expires=1730093764&Signature=P8B7PJDnOyfaCU%2BI9dm%2BxPl0ya4%3D",
-		"label": "SOLD OUT",
-		"disabled": true,
-		"metadata": {}
-	},
-	{
 		"actionUrl": "https://hermans.club/api/actions/presale/phasetwo",
 		"blinkUrl": "https://hermans.club/b/presale/phasetwo",
 		"websiteUrl": "https://hermans.club",
@@ -1407,30 +1394,6 @@
 					"parameters": [
 						{ "name": "amount", "label": "Enter a custom USDC amount" }
 					]
-				}
-			]
-		},
-		"metadata": {}
-	},
-	{
-		"actionUrl": "https://stake.superfast.org/api/Superfast/stake",
-		"blinkUrl": "https://stake.superfast.org/stake",
-		"websiteUrl": "https://stake.superfast.org",
-		"createdAt": "2024-10-15T18:09:16.000Z",
-		"tags": ["registered"],
-		"icon": "https://superfast.org/supersolblink.png",
-		"label": "Instantly buy superSOL",
-		"title": "Instantly buy superSOL",
-		"description": "The Liquid Staking Token of Superfast, dedicated to bringing the most demanding block production capabilities to Africa. The same yield as native staking including Jito MEV and 100% backed by underlying staked SOL",
-		"links": {
-			"actions": [
-				{ "label": "50 SOL", "href": "/api/Superfast/stake/50" },
-				{ "label": "250 SOL", "href": "/api/Superfast/stake/250" },
-				{ "label": "1000 SOL", "href": "/api/Superfast/stake/1000" },
-				{
-					"href": "/api/Superfast/stake/{amount}",
-					"label": "Buy superSOL",
-					"parameters": [{ "name": "amount", "label": "Enter a SOL amount" }]
 				}
 			]
 		},
@@ -4472,50 +4435,6 @@
 		"metadata": {}
 	},
 	{
-		"actionUrl": "https://blinks.mohitparmar.fun/api/donate",
-		"blinkUrl": null,
-		"websiteUrl": null,
-		"createdAt": "2024-10-15T18:15:51.000Z",
-		"tags": ["registered"],
-		"icon": "https://pbs.twimg.com/profile_images/1757095583708241920/EEg47uqc_400x400.jpg",
-		"title": "Transfer to the codeMohit",
-		"description": "Support codeMohit by transferring SOL.",
-		"label": "Transfer SOL to codeMohit",
-		"links": {
-			"actions": [
-				{
-					"label": "Transfer 0.001 SOL",
-					"href": "https://blinks.mohitparmar.fun/api/donate?amount=0.001"
-				}
-			]
-		},
-		"metadata": {}
-	},
-	{
-		"actionUrl": "https://blink-api.spicygun.com/miniapp/blink/share/5",
-		"blinkUrl": "https://blinks.spicygun.com/share/5",
-		"websiteUrl": null,
-		"createdAt": "2024-10-15T18:15:54.000Z",
-		"tags": ["registered"],
-		"description": "Welcome",
-		"icon": "https://blink.shelllabs.xyz/static/blink-system-3.png",
-		"label": "hello",
-		"links": {
-			"actions": [
-				{ "href": "/miniapp/blink/send/5/0.01", "label": "0.01 SOL" },
-				{
-					"href": "/miniapp/blink/send/5/{amount}",
-					"label": "Send",
-					"parameters": [
-						{ "label": "Enter a custom SOL amount", "name": "amount" }
-					]
-				}
-			]
-		},
-		"title": "hello",
-		"metadata": {}
-	},
-	{
 		"actionUrl": "https://api.raise.flipeet.io/api/v1/donate/flipeet-charity",
 		"blinkUrl": "https://raise.flipeet.io/donate/flipeet-charity",
 		"websiteUrl": null,
@@ -6362,29 +6281,6 @@
 		"metadata": { "blockchainIds": ["solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"] }
 	},
 	{
-		"actionUrl": "https://payments.itsjungle.xyz/payment/solana/action?parameters=eyJwYXltZW50X3B1YmtleSI6WzIzMywyMTcsMjUsMTIyLDEwMCwxOTYsNzcsMTIsMTQ1LDkyLDgsMTk0LDY5LDE1OSwxMjQsMTU4LDAsMCwwLDAsMCwwLDAsMCwwLDAsMCwwLDAsMCwwLDBdLCJjdXN0b21lcl9pZCI6ImJkMmFhYTQ5LTJjY2QtNDc1Ni1iM2I0LTk3MDkxZjUxMmE0ZiIsInZhbHVlIjowLjk4fQ==",
-		"blinkUrl": null,
-		"websiteUrl": null,
-		"createdAt": "2024-10-15T18:18:36.000Z",
-		"tags": ["registered"],
-		"icon": "/static/lootbox.png",
-		"title": "FTW Tournament Tickets Checkout",
-		"description": "Complete the transaction to confirm your tickets purchase.",
-		"label": "",
-		"disabled": false,
-		"links": {
-			"actions": [
-				{
-					"href": "/payment/solana/action?parameters=eyJwYXltZW50X3B1YmtleSI6WzIzMywyMTcsMjUsMTIyLDEwMCwxOTYsNzcsMTIsMTQ1LDkyLDgsMTk0LDY5LDE1OSwxMjQsMTU4LDAsMCwwLDAsMCwwLDAsMCwwLDAsMCwwLDAsMCwwLDBdLCJjdXN0b21lcl9pZCI6ImJkMmFhYTQ5LTJjY2QtNDc1Ni1iM2I0LTk3MDkxZjUxMmE0ZiIsInZhbHVlIjowLjk4fQ==",
-					"label": "Pay",
-					"parameters": null
-				}
-			]
-		},
-		"error": null,
-		"metadata": {}
-	},
-	{
 		"actionUrl": "https://devearn.xyz/api/actions/blink-airdrop",
 		"blinkUrl": "https://devearn.xyz/blink-airdrop",
 		"websiteUrl": "https://devearn.xyz",
@@ -6425,34 +6321,6 @@
 							"type": "text"
 						}
 					]
-				}
-			]
-		},
-		"metadata": {}
-	},
-	{
-		"actionUrl": "https://samo-blink.com/api/action",
-		"blinkUrl": null,
-		"websiteUrl": null,
-		"createdAt": "2024-10-15T18:18:40.000Z",
-		"tags": ["registered"],
-		"icon": "https://drive.google.com/drive-viewer/AKGpihZ2Q_g2L1ffn9bXK0lDzTLxC5X3dv9QeLWaUAtqZYrFwXXzqmTEnyy0s1cvPTvGguaQkX6_SzxBKTWUsJxo__dfH0bEOFVSWw=w1706-h1294",
-		"label": "SAMO Raffle",
-		"title": "Samoyed Coin Raffle",
-		"description": "Introducing the first $SAMO Blink. \n1 $SAMO = 1 entry. \nGuaranteed a prize pool of 10k $SAMO. \nCheck www.samo-blink.com/raffle for the latest raffle details.",
-		"links": {
-			"actions": [
-				{
-					"href": "https://www.samo-blink.com/api/action?amount=1",
-					"label": "1 $SAMO"
-				},
-				{
-					"href": "https://www.samo-blink.com/api/action?amount=10",
-					"label": "10 $SAMO"
-				},
-				{
-					"href": "https://www.samo-blink.com/api/action?amount=100",
-					"label": "100 $SAMO"
 				}
 			]
 		},
@@ -8668,48 +8536,6 @@
 							"label": "Receiver Wallet",
 							"required": true
 						}
-					]
-				}
-			]
-		},
-		"metadata": {}
-	},
-	{
-		"actionUrl": "https://blink.hel.io/v1/blink/67057e488b71c56c8ca64bd6",
-		"blinkUrl": null,
-		"websiteUrl": null,
-		"createdAt": "2024-10-15T18:20:28.000Z",
-		"tags": ["registered"],
-		"title": "Luxela",
-		"description": "Empowering fashion, decentralized and authentic connecting Independent & small-scale fashion brands to a global audience and enabling fast, cheap and seamless transactions.",
-		"icon": "https://helioimages113109-prod.s3.eu-west-1.amazonaws.com/attachments/s8huLfWkc1oNnS5VOZbEyDghim4gd0J05MobQK7v.jpg?AWSAccessKeyId=AKIAZIDE2VZRR4E6NXMZ&Expires=1730094620&Signature=bcjFegnAn3pLRHeaUNdkAGF%2Boq0%3D",
-		"label": "Buy now",
-		"disabled": false,
-		"links": {
-			"actions": [
-				{
-					"label": "Buy now",
-					"href": "/v1/blink/67057e488b71c56c8ca64bd6?fullName={fullName}&email={email}&phoneNumber={phoneNumber}&blinkAddress={blinkAddress}&areaCode={areaCode}&city={city}&country={country}",
-					"parameters": [
-						{ "name": "fullName", "label": "Full name", "required": true },
-						{ "name": "email", "label": "E-mail address", "required": true },
-						{
-							"name": "phoneNumber",
-							"label": "Phone number",
-							"required": true
-						},
-						{
-							"name": "blinkAddress",
-							"label": "Address Line 1",
-							"required": true
-						},
-						{
-							"name": "areaCode",
-							"label": "Zipcode/Postcode",
-							"required": true
-						},
-						{ "name": "city", "label": "City", "required": true },
-						{ "name": "country", "label": "Country", "required": true }
 					]
 				}
 			]
