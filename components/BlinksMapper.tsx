@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Action, Blink, type ActionAdapter } from "@dialectlabs/blinks";
+import { Action, Blink } from "@dialectlabs/blinks";
 import blinksData from "@/blinks-data.json";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +14,7 @@ import {
 import "@dialectlabs/blinks/index.css";
 import { useActionSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
 import { clusterApiUrl } from "@solana/web3.js";
+import BlinkSkeleton from "@/components/BlinkSkeleton";
 
 interface ActionWithMetadata {
 	action: Action;
@@ -111,14 +112,6 @@ export default function BlinksMapper() {
 		setFilteredActions(sorted);
 	}, [allActions, searchQuery, sortOption]);
 
-	if (isLoading) {
-		return <div className="text-center">Loading blinks...</div>;
-	}
-
-	if (error) {
-		return <div className="text-center text-red-500">Error: {error}</div>;
-	}
-
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col sm:flex-row gap-4">
@@ -128,8 +121,12 @@ export default function BlinksMapper() {
 					value={searchQuery}
 					onChange={handleSearch}
 					className="flex-grow"
+					disabled={isLoading}
 				/>
-				<Select value={sortOption} onValueChange={handleSort}>
+				<Select
+					value={sortOption}
+					onValueChange={handleSort}
+					disabled={isLoading}>
 					<SelectTrigger className="w-full sm:w-[180px]">
 						<SelectValue placeholder="Sort by" />
 					</SelectTrigger>
@@ -142,17 +139,29 @@ export default function BlinksMapper() {
 				</Select>
 			</div>
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				{filteredActions.map(({ action }) => (
-					<>
-						<Blink action={action} websiteText={new URL(action.url).hostname} />
-					</>
-				))}
+				{isLoading ? (
+					Array.from({ length: 9 }).map((_, index) => (
+						<BlinkSkeleton key={index} />
+					))
+				) : error ? (
+					<div className="col-span-full text-center text-red-500">
+						Error: {error}
+					</div>
+				) : filteredActions.length === 0 ? (
+					<div className="col-span-full text-center text-gray-500">
+						No blinks found matching your search.
+					</div>
+				) : (
+					filteredActions.map(({ action }) => (
+						<>
+							<Blink
+								action={action}
+								websiteText={new URL(action.url).hostname}
+							/>
+						</>
+					))
+				)}
 			</div>
-			{filteredActions.length === 0 && (
-				<div className="text-center text-gray-500">
-					No blinks found matching your search.
-				</div>
-			)}
 		</div>
 	);
 }
