@@ -1,14 +1,5 @@
 import {
-	AbstractActionComponent,
-	Action,
-	ActionParameterType,
-	ButtonActionComponent,
 	ExtendedActionGetResponse,
-	FormActionComponent,
-	LinkedActionType,
-	MultiValueActionComponent,
-	SingleValueActionComponent,
-	TypedActionParameter,
 } from "@dialectlabs/blinks";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -117,40 +108,4 @@ const getActionMetadata = (response: Response): ActionMetadata => {
 		blockchainIds,
 		version,
 	};
-};
-
-const MULTI_VALUE_TYPES: ActionParameterType[] = ["checkbox"];
-
-const componentFactory = (
-	parent: Action,
-	label: string,
-	href: string,
-	type: LinkedActionType,
-	parameters?: TypedActionParameter[]
-): AbstractActionComponent => {
-	if (!parameters?.length) {
-		return new ButtonActionComponent(parent, label, href, type);
-	}
-
-	if (parameters.length > 1) {
-		return new FormActionComponent(parent, label, href, type, parameters);
-	}
-
-	const [parameter] = parameters;
-
-	if (!parameter.type) {
-		return new SingleValueActionComponent(
-			parent,
-			label,
-			href,
-			type,
-			parameters
-		);
-	}
-
-	if (MULTI_VALUE_TYPES.includes(parameter.type)) {
-		return new MultiValueActionComponent(parent, label, href, type, parameters);
-	}
-
-	return new SingleValueActionComponent(parent, label, href, type, parameters);
 };

@@ -40,6 +40,7 @@ export default function BlinksMapper() {
 				blinksData.map(async (blink) => {
 					try {
 						const action = await Action.fetch(blink.actionUrl);
+						console.log("Fetched action:", action);
 						return { action, createdAt: new Date(blink.createdAt) };
 					} catch (error) {
 						console.error(
