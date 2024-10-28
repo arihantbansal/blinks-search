@@ -5,6 +5,7 @@ import { useActionSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
 import { clusterApiUrl } from "@solana/web3.js";
 import BlinksMapper from "@/components/BlinksMapper";
 import { WalletButton } from "@/components/solana-provider";
+import "@dialectlabs/blinks/index.css";
 
 export default function Home() {
 	const { adapter } = useActionSolanaWalletAdapter(

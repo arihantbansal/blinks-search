@@ -11,7 +11,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
 
 interface BlinksMapperProps {
 	adapter: ActionAdapter;
@@ -139,14 +138,9 @@ export default function BlinksMapper({ adapter }: BlinksMapperProps) {
 			</div>
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				{filteredActions.map(({ action }) => (
-					<Card key={action.url} className="overflow-hidden">
-						<CardContent className="p-0">
-							<Blink
-								action={action}
-								websiteText={new URL(action.url).hostname}
-							/>
-						</CardContent>
-					</Card>
+					<>
+						<Blink action={action} websiteText={new URL(action.url).hostname} />
+					</>
 				))}
 			</div>
 			{filteredActions.length === 0 && (
