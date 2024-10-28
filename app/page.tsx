@@ -3,14 +3,12 @@
 import "@dialectlabs/blinks/index.css";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
-	Action,
+	type Action,
 	Blink,
 	type ActionAdapter,
-	useActionsRegistryInterval,
 } from "@dialectlabs/blinks";
 import { useActionSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
 import { clusterApiUrl } from "@solana/web3.js";
-import { ActionsRegistryData } from "@/lib/utils";
 import BlinkSkeleton from "@/components/BlinkSkeleton";
 import MasonryGrid from "@/components/MasonryGrid";
 import { Input } from "@/components/ui/input";
@@ -21,11 +19,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import blinksData from "@/blinks-data.json";
+import { BlinksDataType } from "../lib/utils";
 
-const BATCH_SIZE = 12;
+const DISPLAY_BATCH_SIZE = 24;
 
 export default function App() {
-	const { isRegistryLoaded } = useActionsRegistryInterval();
 	const { adapter } = useActionSolanaWalletAdapter(
 		process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("mainnet-beta")
 	);
@@ -36,42 +35,29 @@ export default function App() {
 				<h1 className="text-3xl font-bold mb-8 text-center">
 					🔍 search blinks
 				</h1>
-				<InfiniteScrollActions adapter={adapter} />
+				<BlinkSearch adapter={adapter} />
 			</main>
 		</div>
 	);
 }
 
-const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
+const BlinkSearch = ({ adapter }: { adapter: ActionAdapter }) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [actionsRegistryData, setActionsRegistryData] = useState<
-		ActionsRegistryData[]
-	>([]);
-	const [actions, setActions] = useState<Action[]>([]);
-	const [page, setPage] = useState(0);
-	const loader = useRef(null);
+	const [allActions, setAllActions] = useState<BlinksDataType[]>([]);
+	const [displayedActions, setDisplayedActions] = useState<Action[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [sortOption, setSortOption] = useState("newest");
-	const [hasMore, setHasMore] = useState(true);
+	const loader = useRef(null);
 
-	const fetchRegistryData = useCallback(async () => {
+	const loadActionsFromFile = useCallback(async () => {
 		try {
-			const res = await fetch("https://registry.dial.to/v1/list");
-			if (!res.ok) {
-				throw new Error(`Failed to fetch registry data: ${res.statusText}`);
-			}
-			const data = await res.json();
-			const dataResults = data.results as ActionsRegistryData[];
-			const filteredResults = dataResults.filter((res) =>
-				res.tags.includes("registered")
-			);
-			console.log("Fetched registry data:", filteredResults.length);
-			return filteredResults;
+			console.log("Loaded actions:", blinksData);
+			return blinksData;
 		} catch (err) {
 			const errorMessage =
 				err instanceof Error ? err.message : "An unknown error occurred";
-			console.error("Error fetching registry data:", errorMessage);
+			console.error("Error loading actions:", errorMessage);
 			setError(errorMessage);
 			return [];
 		}
@@ -80,126 +66,65 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 	const sortActions = useCallback((actions: Action[], option: string) => {
 		switch (option) {
 			case "newest":
-				return actions.sort((a, b) => {
-					const aEntry = actionsRegistryData.find(
-						(entry) => entry.actionUrl === a.url
-					);
-					const bEntry = actionsRegistryData.find(
-						(entry) => entry.actionUrl === b.url
-					);
-					return (
-						Number(bEntry?.createdAt ?? 0) - Number(aEntry?.createdAt ?? 0)
-					);
-				});
+				return [...actions]; // File order is newest first
 			case "oldest":
-				return actions.sort((a, b) => {
-					const aEntry = actionsRegistryData.find(
-						(entry) => entry.actionUrl === a.url
-					);
-					const bEntry = actionsRegistryData.find(
-						(entry) => entry.actionUrl === b.url
-					);
-					return (
-						Number(aEntry?.createdAt ?? 0) - Number(bEntry?.createdAt ?? 0)
-					);
-				});
+				return [...actions].reverse();
 			case "nameAsc":
-				return actions.sort((a, b) => a.title.localeCompare(b.title));
+				return [...actions].sort((a, b) => a.title.localeCompare(b.title));
 			case "nameDesc":
-				return actions.sort((a, b) => b.title.localeCompare(a.title));
+				return [...actions].sort((a, b) => b.title.localeCompare(a.title));
 			default:
 				return actions;
 		}
 	}, []);
 
-	const fetchActions = useCallback(async () => {
-		if (isLoading || actionsRegistryData.length === 0 || !hasMore) {
-			console.log("Skipping fetchActions:", {
-				isLoading,
-				dataLength: actionsRegistryData.length,
-				hasMore,
-			});
-			return;
-		}
+	const filterAndSortActions = useCallback(
+		(actions: Action[], query: string, sort: string) => {
+			const filtered = actions.filter((action) =>
+				(action.title?.toLowerCase() ?? "").includes(query.toLowerCase())
+			);
+			return sortActions(filtered, sort);
+		},
+		[sortActions]
+	);
 
-		setIsLoading(true);
-		const start = page * BATCH_SIZE;
-		const end = start + BATCH_SIZE;
-		const batch = actionsRegistryData.slice(start, end);
-
-		console.log("Fetching actions:", { start, end, batchSize: batch.length });
-
-		if (batch.length === 0) {
-			setHasMore(false);
-			setIsLoading(false);
-			console.log("No more actions to fetch");
-			return;
-		}
-
-		const actionPromises = batch.map((actionRegistryEntry) =>
-			Action.fetch(actionRegistryEntry.actionUrl).catch((error) => {
-				console.error(
-					`Failed to fetch action from ${actionRegistryEntry.actionUrl}:`,
-					error
-				);
-				return null;
-			})
-		);
-
-		const fetchedActions = await Promise.all(actionPromises);
-		const validActions = fetchedActions.filter(Boolean) as Action[];
-
-		console.log("Fetched valid actions:", validActions.length);
-
-		const filteredActions = validActions.filter((action) =>
-			action.title.toLowerCase().includes(searchQuery.toLowerCase())
-		);
-
-		const sortedActions = sortActions(filteredActions, sortOption);
-
-		setActions((prevActions) => {
-			const newActions = [...prevActions, ...sortedActions];
-			console.log("Total actions after update:", newActions.length);
-			return newActions;
+	const loadMoreActions = useCallback(() => {
+		setDisplayedActions((prev) => {
+			const filteredAndSorted = filterAndSortActions(
+				allActions,
+				searchQuery,
+				sortOption
+			);
+			const nextBatch = filteredAndSorted.slice(
+				prev.length,
+				prev.length + DISPLAY_BATCH_SIZE
+			);
+			return [...prev, ...nextBatch];
 		});
-		setPage((prevPage) => prevPage + 1);
-		setIsLoading(false);
-	}, [
-		page,
-		actionsRegistryData,
-		isLoading,
-		searchQuery,
-		sortOption,
-		hasMore,
-		sortActions,
-	]);
+	}, [allActions, searchQuery, sortOption, filterAndSortActions]);
 
 	useEffect(() => {
-		const loadInitialData = async () => {
-			const registryData = await fetchRegistryData();
-			setActionsRegistryData(registryData);
+		const loadAllActions = async () => {
+			setIsLoading(true);
+			const actions = await loadActionsFromFile();
+			setAllActions(actions);
 			setIsLoading(false);
 		};
 
-		loadInitialData();
-	}, [fetchRegistryData]);
+		loadAllActions();
+	}, [loadActionsFromFile]);
 
 	useEffect(() => {
-		if (actionsRegistryData.length > 0 && !isLoading) {
-			setActions([]);
-			setPage(0);
-			setHasMore(true);
-			fetchActions();
-		}
-	}, [actionsRegistryData, searchQuery, sortOption]);
+		setDisplayedActions([]);
+		loadMoreActions();
+	}, [allActions, searchQuery, sortOption, loadMoreActions]);
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
 				const first = entries[0];
-				if (first.isIntersecting && !isLoading && hasMore) {
-					console.log("Intersection observer triggered fetchActions");
-					fetchActions();
+				if (first.isIntersecting && !isLoading) {
+					loadMoreActions();
 				}
 			},
 			{ threshold: 0.1 }
@@ -215,24 +140,18 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 				observer.unobserve(currentLoader);
 			}
 		};
-	}, [isLoading, fetchActions, hasMore]);
+	}, [isLoading, loadMoreActions]);
 
 	useEffect(() => {
-		actions.forEach((action) => action.setAdapter(adapter));
-	}, [actions, adapter]);
+		displayedActions.forEach((action) => action.setAdapter(adapter));
+	}, [displayedActions, adapter]);
 
 	const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchQuery(e.target.value);
-		setActions([]);
-		setPage(0);
-		setHasMore(true);
 	}, []);
 
 	const handleSort = useCallback((value: string) => {
 		setSortOption(value);
-		setActions([]);
-		setPage(0);
-		setHasMore(true);
 	}, []);
 
 	if (error) {
@@ -262,7 +181,7 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 				</Select>
 			</div>
 			<MasonryGrid>
-				{actions.map((action) => (
+				{displayedActions.map((action) => (
 					<div
 						key={action.url}
 						className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -270,7 +189,7 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 					</div>
 				))}
 				{isLoading &&
-					Array.from({ length: BATCH_SIZE }).map((_, index) => (
+					Array.from({ length: DISPLAY_BATCH_SIZE }).map((_, index) => (
 						<div
 							key={`skeleton-${index}`}
 							className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -278,7 +197,7 @@ const InfiniteScrollActions = ({ adapter }: { adapter: ActionAdapter }) => {
 						</div>
 					))}
 			</MasonryGrid>
-			{hasMore && <div ref={loader} className="h-10 w-full" />}
+			<div ref={loader} className="h-10 w-full" />
 		</div>
 	);
 };

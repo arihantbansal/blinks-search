@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+	experimental: {
+		outputFileTracingIncludes: {
+			'/api/writeActionsToFile': ['./blinks.json'],
+		}
+	}
+};
 
 export default nextConfig;
