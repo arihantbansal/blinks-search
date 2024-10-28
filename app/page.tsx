@@ -1,16 +1,12 @@
 "use client";
 
 import React from "react";
-import { useActionSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
-import { clusterApiUrl } from "@solana/web3.js";
 import BlinksMapper from "@/components/BlinksMapper";
 import { WalletButton } from "@/components/solana-provider";
 import "@dialectlabs/blinks/index.css";
 
 export default function Home() {
-	const { adapter } = useActionSolanaWalletAdapter(
-		process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("mainnet-beta")
-	);
+	
 
 	return (
 		<div className="min-h-screen bg-gray-100">
@@ -22,7 +18,7 @@ export default function Home() {
 			</header>
 			<main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 				<div className="px-4 py-6 sm:px-0">
-					<BlinksMapper adapter={adapter} />
+					<BlinksMapper />
 				</div>
 			</main>
 		</div>

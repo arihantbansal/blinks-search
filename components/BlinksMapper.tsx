@@ -12,17 +12,18 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import "@dialectlabs/blinks/index.css";
-
-interface BlinksMapperProps {
-	adapter: ActionAdapter;
-}
+import { useActionSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
+import { clusterApiUrl } from "@solana/web3.js";
 
 interface ActionWithMetadata {
 	action: Action;
 	createdAt: Date;
 }
 
-export default function BlinksMapper({ adapter }: BlinksMapperProps) {
+export default function BlinksMapper() {
+	const { adapter } = useActionSolanaWalletAdapter(
+		process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("mainnet-beta")
+	);
 	const [allActions, setAllActions] = useState<ActionWithMetadata[]>([]);
 	const [filteredActions, setFilteredActions] = useState<ActionWithMetadata[]>(
 		[]
@@ -38,7 +39,6 @@ export default function BlinksMapper({ adapter }: BlinksMapperProps) {
 				blinksData.map(async (blink) => {
 					try {
 						const action = await Action.fetch(blink.actionUrl);
-						action.setAdapter(adapter);
 						return { action, createdAt: new Date(blink.createdAt) };
 					} catch (error) {
 						console.error(
@@ -57,7 +57,7 @@ export default function BlinksMapper({ adapter }: BlinksMapperProps) {
 			console.error("Error mapping blinks to actions:", error);
 			throw new Error("Failed to map blinks to actions");
 		}
-	}, [adapter]);
+	}, []);
 
 	useEffect(() => {
 		const fetchActions = async () => {
@@ -75,6 +75,10 @@ export default function BlinksMapper({ adapter }: BlinksMapperProps) {
 
 		fetchActions();
 	}, [mapBlinksToActions]);
+
+	useEffect(() => {
+		allActions.forEach(({ action }) => action.setAdapter(adapter));
+	}, [allActions, adapter]);
 
 	const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchQuery(e.target.value);
