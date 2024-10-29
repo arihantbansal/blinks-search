@@ -21,6 +21,7 @@ interface ActionWithMetadata {
 	action: Action;
 	createdAt: Date;
 	description: string;
+	url: string;
 }
 
 export default function BlinksMapper() {
@@ -48,6 +49,7 @@ export default function BlinksMapper() {
 							action,
 							createdAt: new Date(blink.createdAt),
 							description: blink.description,
+							url: blink.actionUrl,
 						};
 					} catch (error) {
 						console.error(
@@ -101,7 +103,8 @@ export default function BlinksMapper() {
 		const filtered = allActions.filter(
 			(item) =>
 				item.action.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				item.description.toLowerCase().includes(searchQuery.toLowerCase())
+				item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				item.url.toLowerCase().includes(searchQuery.toLowerCase())
 		);
 
 		const sorted = [...filtered].sort((a, b) => {
