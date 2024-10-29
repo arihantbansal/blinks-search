@@ -15,6 +15,7 @@ import "@dialectlabs/blinks/index.css";
 import { useActionSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
 import { clusterApiUrl } from "@solana/web3.js";
 import BlinkSkeleton from "@/components/BlinkSkeleton";
+import MasonryGrid from "@/components/MasonryGrid";
 
 interface ActionWithMetadata {
 	action: Action;
@@ -148,7 +149,7 @@ export default function BlinksMapper() {
 					</SelectContent>
 				</Select>
 			</div>
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<MasonryGrid>
 				{isLoading ? (
 					Array.from({ length: 9 }).map((_, index) => (
 						<BlinkSkeleton key={index} />
@@ -163,15 +164,14 @@ export default function BlinksMapper() {
 					</div>
 				) : (
 					filteredActions.map(({ action }) => (
-						<React.Fragment key={action.url}>
-							<Blink
-								action={action}
-								websiteText={new URL(action.url).hostname}
-							/>
-						</React.Fragment>
+						<Blink
+							key={action.url}
+							action={action}
+							websiteText={new URL(action.url).hostname}
+						/>
 					))
 				)}
-			</div>
+			</MasonryGrid>
 		</div>
 	);
 }
